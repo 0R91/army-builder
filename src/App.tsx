@@ -1,16 +1,33 @@
 import { useState } from 'react';
 
+type Unit = {
+  id: number;
+  name: string;
+  points: number;
+  category: string;
+};
+
 function App() {
-  const units = [
+  const units: Unit[] = [
     { id: 1, name: 'Zergling', points: 40, category: 'Troop' },
     { id: 2, name: 'Roach', points: 75, category: 'Troop' },
     { id: 3, name: 'Queen', points: 150, category: 'Support' },
   ];
 
-  const [army, setArmy] = useState([]);
+  const troops = units.filter((unit) => unit.category === 'Troop');
 
-  function handleClick(unit) {
+  const supports = units.filter((unit) => unit.category === 'Support');
+
+  const [army, setArmy] = useState<Unit[]>([]);
+
+  function handleClick(unit: Unit) {
     setArmy([...army, unit]);
+  }
+
+  function handleRemove(indexToRemove: number) {
+    const updatedArmy = army.filter((_, index) => index !== indexToRemove);
+
+    setArmy(updatedArmy);
   }
 
   const totalPoints = army.reduce((total, unit) => {
@@ -20,20 +37,31 @@ function App() {
   return (
     <>
       <div>Army Builder</div>
-      {units.map((unit) => (
-        <div key={unit.id}>
-          <p>{unit.name}</p>
-          <p>{unit.points}</p>
-          <p>{unit.category}</p>
-          <button onClick={() => handleClick(unit)}>+</button>
-        </div>
-      ))}
+      <div>
+        <p>Troops</p>
+        {troops.map((trooper) => (
+          <div key={trooper.id}>
+            <p>{trooper.name}</p>
+            <p>{trooper.points}</p>
+            <button onClick={() => handleClick(trooper)}>+</button>
+          </div>
+        ))}
 
+        <p>Support</p>
+        {supports.map((support) => (
+          <div key={support.id}>
+            <p>{support.name}</p>
+            <p>{support.points}</p>
+            <button onClick={() => handleClick(support)}>+</button>
+          </div>
+        ))}
+      </div>
       <div>
         <p>My Army</p>
         {army.map((unit, index) => (
           <div key={index}>
             <p>{unit.name}</p>
+            <button onClick={() => handleRemove(index)}>-</button>
           </div>
         ))}
         <p>Points: {totalPoints}</p>
