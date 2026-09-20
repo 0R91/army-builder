@@ -1,11 +1,6 @@
 import { useState } from 'react';
 
-type Unit = {
-  id: number;
-  name: string;
-  points: number;
-  category: string;
-};
+import UnitCard from './components/UnitCard';
 
 function App() {
   const units: Unit[] = [
@@ -39,12 +34,9 @@ function App() {
       <div>Army Builder</div>
       <div>
         <p>Troops</p>
+
         {troops.map((trooper) => (
-          <div key={trooper.id}>
-            <p>{trooper.name}</p>
-            <p>{trooper.points}</p>
-            <button onClick={() => handleClick(trooper)}>+</button>
-          </div>
+          <UnitCard key={trooper.id} unit={trooper} />
         ))}
 
         <p>Support</p>
