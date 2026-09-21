@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import type { Unit } from './types/Unit.ts';
+
+import styles from './App.module.css';
 
 import UnitCard from './components/UnitCard';
 
@@ -10,10 +13,10 @@ function App() {
   ];
 
   const troops = units.filter((unit) => unit.category === 'Troop');
-
   const supports = units.filter((unit) => unit.category === 'Support');
-
   const [army, setArmy] = useState<Unit[]>([]);
+  const [maxPoints, setMaxPoints] = useState(1000);
+  const pointLimits = [1000, 2000];
 
   function handleClick(unit: Unit) {
     setArmy([...army, unit]);
@@ -32,20 +35,24 @@ function App() {
   return (
     <>
       <div>Army Builder</div>
+      <p>Minerals</p>
+      {
+        <div>
+          {pointLimits.map((limit) => (
+            <button key={limit}>{limit}</button>
+          ))}
+        </div>
+      }
       <div>
         <p>Troops</p>
 
         {troops.map((trooper) => (
-          <UnitCard key={trooper.id} unit={trooper} />
+          <UnitCard key={trooper.id} unit={trooper} onAdd={handleClick} />
         ))}
 
         <p>Support</p>
         {supports.map((support) => (
-          <div key={support.id}>
-            <p>{support.name}</p>
-            <p>{support.points}</p>
-            <button onClick={() => handleClick(support)}>+</button>
-          </div>
+          <UnitCard key={support.id} unit={support} onAdd={handleClick} />
         ))}
       </div>
       <div>
@@ -56,7 +63,9 @@ function App() {
             <button onClick={() => handleRemove(index)}>-</button>
           </div>
         ))}
-        <p>Points: {totalPoints}</p>
+        <p className={totalPoints > maxPoints ? styles.pointsOverLimit : undefined}>
+          Points: {totalPoints} / {maxPoints}
+        </p>
       </div>
     </>
   );
