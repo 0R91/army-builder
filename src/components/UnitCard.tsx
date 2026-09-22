@@ -1,4 +1,4 @@
-import type { Unit } from '../types/Unit.ts';
+import type { Unit } from '../types/Unit';
 
 type UnitCardProps = {
   unit: Unit;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Unit } from './types/Unit.ts';
+import type { Unit } from './types/Unit';
 
 import styles from './App.module.css';
 
@@ -36,16 +36,21 @@ function App() {
     <>
       <div>Army Builder</div>
       <p>Minerals</p>
-      {
-        <div>
-          {pointLimits.map((limit) => (
-            <button key={limit}>{limit}</button>
-          ))}
-        </div>
-      }
+
+      <div>
+        {pointLimits.map((limit) => (
+          <button
+            className={limit === maxPoints ? styles.selectedPointLimit : undefined}
+            key={limit}
+            onClick={() => setMaxPoints(limit)}
+          >
+            {limit}
+          </button>
+        ))}
+      </div>
+
       <div>
         <p>Troops</p>
-
         {troops.map((trooper) => (
           <UnitCard key={trooper.id} unit={trooper} onAdd={handleClick} />
         ))}
@@ -55,6 +60,7 @@ function App() {
           <UnitCard key={support.id} unit={support} onAdd={handleClick} />
         ))}
       </div>
+
       <div>
         <p>My Army</p>
         {army.map((unit, index) => (

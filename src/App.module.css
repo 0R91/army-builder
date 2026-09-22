@@ -1,3 +1,7 @@
 .pointsOverLimit {
   color: red;
 }
+
+.selectedPointLimit {
+  font-weight: bold;
+}
