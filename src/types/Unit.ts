@@ -4,3 +4,8 @@ export type Unit = {
   points: number;
   category: string;
 };
+
+export type ArmyEntry = {
+  entryId: number;
+  unit: Unit;
+};
