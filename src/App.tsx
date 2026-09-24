@@ -19,6 +19,7 @@ function App() {
 
   const troops = units.filter((unit) => unit.category === 'Troop');
   const supports = units.filter((unit) => unit.category === 'Support');
+  const zerglings = army.filter((entry) => entry.unit.name === 'Zergling');
 
   const totalPoints = army.reduce((total, entry) => {
     return total + entry.unit.points;
