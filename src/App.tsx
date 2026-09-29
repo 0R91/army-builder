@@ -21,6 +21,18 @@ function App() {
   const supports = units.filter((unit) => unit.category === 'Support');
   const zerglings = army.filter((entry) => entry.unit.name === 'Zergling');
 
+  const unitNames = army.map((entry) => entry.unit.name);
+
+  const unitCounts = unitNames.reduce<Record<string, number>>((counts, name) => {
+    if (counts[name]) {
+      counts[name]++;
+    } else {
+      counts[name] = 1;
+    }
+
+    return counts;
+  }, {});
+
   const totalPoints = army.reduce((total, entry) => {
     return total + entry.unit.points;
   }, 0);

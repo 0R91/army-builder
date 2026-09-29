@@ -1,5 +1,7 @@
 import type { Unit } from '../types/Unit';
 
+import styles from './UnitCard.module.css';
+
 type UnitCardProps = {
   unit: Unit;
   onAdd: (unit: Unit) => void;
@@ -7,7 +9,7 @@ type UnitCardProps = {
 
 function UnitCard({ unit, onAdd }: UnitCardProps) {
   return (
-    <div>
+    <div className={styles.unitCard}>
       <p>{unit.name}</p>
       <p>{unit.points}</p>
       <p>{unit.category}</p>
