@@ -33,6 +33,8 @@ function App() {
     return counts;
   }, {});
 
+  const unitEntries = Object.entries(unitCounts);
+
   const totalPoints = army.reduce((total, entry) => {
     return total + entry.unit.points;
   }, 0);
@@ -47,8 +49,14 @@ function App() {
     nextEntryId.current++;
   }
 
-  function handleRemove(entryId: number) {
-    const updatedArmy = army.filter((entry) => entry.entryId !== entryId);
+  function handleRemove(entryName: string) {
+    const findEntry = army.find((entry) => entry.unit.name === entryName);
+
+    if (!findEntry) {
+      return;
+    }
+
+    const updatedArmy = army.filter((entry) => entry.entryId !== findEntry.entryId);
     setArmy(updatedArmy);
   }
 
@@ -89,11 +97,12 @@ function App() {
 
       <div>
         <p>My Army</p>
-
-        {army.map((entry) => (
-          <div key={entry.entryId}>
-            <p>{entry.unit.name}</p>
-            <button onClick={() => handleRemove(entry.entryId)}>-</button>
+        {unitEntries.map((entry) => (
+          <div key={entry[0]}>
+            <p>
+              {entry[1]}x {entry[0]}
+            </p>
+            <button onClick={() => handleRemove(entry[0])}>-</button>
           </div>
         ))}
 
