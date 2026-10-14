@@ -1,6 +1,9 @@
 import { useRef, useState } from 'react';
 import type { Faction } from '../types/Faction';
 import type { ArmyEntry, Unit } from '../types/Unit';
+import { zergUnits } from '../data/zergUnits';
+import { protossUnits } from '../data/protossUnits';
+import { terranUnits } from '../data/terranUnits';
 import styles from '../App.module.css';
 import UnitCard from './UnitCard';
 
@@ -8,61 +11,77 @@ type ArmyBuilderProps = {
   faction: Faction;
 };
 
-const units: Unit[] = [
-  { id: 1, name: 'Zergling', points: 40, category: 'Troop' },
-  { id: 2, name: 'Roach', points: 75, category: 'Troop' },
-  { id: 3, name: 'Queen', points: 150, category: 'Support' },
-];
-
 const pointLimits = [1000, 2000];
 
 function ArmyBuilder({ faction }: ArmyBuilderProps) {
+  const availableUnits =
+    faction === 'Zerg' ? zergUnits : faction === 'Protoss' ? protossUnits : terranUnits;
+
   const [army, setArmy] = useState<ArmyEntry[]>([]);
-  const [maxPoints, setMaxPoints] = useState(1000);
+  const [maxPoints, setMaxPoints] = useState(2000);
 
   const nextEntryId = useRef(1);
 
-  const troops = units.filter((unit) => unit.category === 'Troop');
-  const supports = units.filter((unit) => unit.category === 'Support');
+  const heroUnits = availableUnits.filter((unit) => unit.category === 'Hero');
+  const coreUnits = availableUnits.filter((unit) => unit.category === 'Core');
+  const supportUnits = availableUnits.filter((unit) => unit.category === 'Support');
+  const eliteUnits = availableUnits.filter((unit) => unit.category === 'Elite');
+  const airUnits = availableUnits.filter((unit) => unit.category === 'Air');
 
-  const unitNames = army.map((entry) => entry.unit.name);
+  const groupedUnits = army.reduce<{ armyEntry: ArmyEntry; quantity: number }[]>(
+    (groups, armyEntry) => {
+      const matchingGroup = groups.find((group) => {
+        if (group.armyEntry.unit.id !== armyEntry.unit.id) {
+          return false;
+        }
 
-  const unitCounts = unitNames.reduce<Record<string, number>>((counts, name) => {
-    if (counts[name]) {
-      counts[name]++;
-    } else {
-      counts[name] = 1;
-    }
+        const groupUpgradeIds = group.armyEntry.upgrades.map((upgrade) => upgrade.id).sort();
 
-    return counts;
-  }, {});
+        const armyEntryUpgradeIds = armyEntry.upgrades.map((upgrade) => upgrade.id).sort();
 
-  const unitEntries = Object.entries(unitCounts);
+        return (
+          groupUpgradeIds.length === armyEntryUpgradeIds.length &&
+          groupUpgradeIds.every((upgradeId, index) => upgradeId === armyEntryUpgradeIds[index])
+        );
+      });
 
-  const totalPoints = army.reduce((total, entry) => {
-    return total + entry.unit.points;
+      if (matchingGroup) {
+        matchingGroup.quantity++;
+      } else {
+        groups.push({
+          armyEntry: armyEntry,
+          quantity: 1,
+        });
+      }
+
+      return groups;
+    },
+    []
+  );
+
+  const totalPoints = army.reduce((total, armyEntry) => {
+    return total + armyEntry.unit.points;
   }, 0);
 
-  function handleClick(unit: Unit) {
-    const newEntry = {
+  function handleAddUnit(unit: Unit) {
+    const newArmyEntry = {
       entryId: nextEntryId.current,
       unit: unit,
+      upgrades: [],
     };
 
-    setArmy([...army, newEntry]);
+    setArmy([...army, newArmyEntry]);
     nextEntryId.current++;
   }
 
-  function handleAdd(unit: Object) {}
+  function handleRemoveUnit(unitName: string) {
+    const armyEntryToRemove = army.find((armyEntry) => armyEntry.unit.name === unitName);
 
-  function handleRemove(entryName: string) {
-    const findEntry = army.find((entry) => entry.unit.name === entryName);
-
-    if (!findEntry) {
+    if (!armyEntryToRemove) {
       return;
     }
 
-    const updatedArmy = army.filter((entry) => entry.entryId !== findEntry.entryId);
+    const updatedArmy = army.filter((armyEntry) => armyEntry.entryId !== armyEntryToRemove.entryId);
 
     setArmy(updatedArmy);
   }
@@ -87,31 +106,42 @@ function ArmyBuilder({ faction }: ArmyBuilderProps) {
       </div>
 
       <div>
-        <p>Troops</p>
+        <p>Hero</p>
+        {heroUnits.map((unit) => (
+          <UnitCard key={unit.id} unit={unit} onAdd={handleAddUnit} />
+        ))}
 
-        {troops.map((trooper) => (
-          <UnitCard key={trooper.id} unit={trooper} onAdd={handleClick} />
+        <p>Core</p>
+        {coreUnits.map((unit) => (
+          <UnitCard key={unit.id} unit={unit} onAdd={handleAddUnit} />
         ))}
 
         <p>Support</p>
+        {supportUnits.map((unit) => (
+          <UnitCard key={unit.id} unit={unit} onAdd={handleAddUnit} />
+        ))}
 
-        {supports.map((support) => (
-          <UnitCard key={support.id} unit={support} onAdd={handleClick} />
+        <p>Elite</p>
+        {eliteUnits.map((unit) => (
+          <UnitCard key={unit.id} unit={unit} onAdd={handleAddUnit} />
+        ))}
+
+        <p>Air</p>
+        {airUnits.map((unit) => (
+          <UnitCard key={unit.id} unit={unit} onAdd={handleAddUnit} />
         ))}
       </div>
 
       <div>
         <p>My Army</p>
 
-        {unitEntries.map((entry) => (
-          <div key={entry[0]}>
-            <button onClick={() => handleAdd(entry[0])}>-</button>
-
+        {groupedUnits.map(({ armyEntry, quantity }) => (
+          <div key={armyEntry.entryId}>
             <p>
-              {entry[1]}x {entry[0]}
+              {quantity}x {armyEntry.unit.name}
             </p>
 
-            <button onClick={() => handleRemove(entry[0])}>-</button>
+            <button onClick={() => handleRemoveUnit(armyEntry.unit.name)}>-</button>
           </div>
         ))}
 
